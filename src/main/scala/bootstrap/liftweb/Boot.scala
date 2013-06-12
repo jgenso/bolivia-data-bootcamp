@@ -12,7 +12,7 @@ import Loc._
 import mapper._
 
 import code.model._
-import net.liftmodules.JQueryModule
+import net.liftmodules.{FoBo, JQueryModule}
 
 
 /**
@@ -37,6 +37,13 @@ class Boot {
     // you don't need to use Mapper to use Lift... use
     // any ORM you want
     Schemifier.schemify(true, Schemifier.infoF _, User)
+
+    //The FoBo setup and init
+    FoBo.InitParam.JQuery=FoBo.JQuery182
+    FoBo.InitParam.ToolKit=FoBo.Bootstrap230
+    FoBo.InitParam.ToolKit=FoBo.FontAwesome300
+    FoBo.InitParam.ToolKit=FoBo.PrettifyJun2011
+    FoBo.init()
 
     // where to search snippet
     LiftRules.addToPackages("code")
