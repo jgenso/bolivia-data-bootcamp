@@ -13,6 +13,8 @@ import mapper._
 
 import code.model._
 import net.liftmodules.{FoBo, JQueryModule}
+import code.lib.model.DbHelper
+import net.liftweb.squerylrecord.RecordTypeMode._
 
 
 /**
@@ -21,22 +23,7 @@ import net.liftmodules.{FoBo, JQueryModule}
  */
 class Boot {
   def boot {
-    if (!DB.jndiJdbcConnAvailable_?) {
-      val vendor = 
-	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-			     Props.get("db.url") openOr 
-			     "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-			     Props.get("db.user"), Props.get("db.password"))
 
-      LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
-
-      DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
-    }
-
-    // Use Lift's Mapper ORM to populate the database
-    // you don't need to use Mapper to use Lift... use
-    // any ORM you want
-    Schemifier.schemify(true, Schemifier.infoF _, User)
 
     //The FoBo setup and init
     FoBo.InitParam.JQuery=FoBo.JQuery182
@@ -48,6 +35,29 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("code")
 
+    DbHelper.initDB()
+
+    S.addAround(new LoanWrapper {
+      override def apply[T](f: => T): T = {
+        val result = inTransaction {
+          try {
+            Right(f)
+          } catch {
+            case e: LiftFlowOfControlException => Left(e)
+          }
+        }
+
+        result match {
+          case Right(r) => r
+          case Left(exception) => throw exception
+        }
+      }
+    })
+
+    // Uncomment the following line to create the database schema
+    DbHelper.createSchema()
+
+
     // Build SiteMap
     def sitemap = SiteMap(
       Menu.i("Home") / "index" >> User.AddUserMenusAfter, // the simple way to declare a menu
@@ -57,11 +67,13 @@ class Boot {
       Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
 	       "Static Content")))
 
-    def sitemapMutators = User.sitemapMutator
+    // set the sitemap.  Note if you don't want access control for
+    // each page, just comment this line out.
+    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap))
 
     // set the sitemap.  Note if you don't want access control for
     // each page, just comment this line out.
-    LiftRules.setSiteMapFunc(() => sitemapMutators(sitemap))
+    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap))
 
     //Init the jQuery module, see http://liftweb.net/jquery for more information.
     LiftRules.jsArtifacts = JQueryArtifacts
@@ -86,7 +98,5 @@ class Boot {
     LiftRules.htmlProperties.default.set((r: Req) =>
       new Html5Properties(r.userAgent))    
 
-    // Make a transaction span the whole HTTP request
-    S.addAround(DB.buildLoanWrapper)
   }
 }

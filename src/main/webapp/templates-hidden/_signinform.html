@@ -1,0 +1,31 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span9">
+            <!-- we should make this hero unit a include -->
+            <div class="hero-unit">
+                <form class="form-horizontal" action="/user_mgt/login" method="POST">
+                    <div class="block-heading">
+                        <div data-lift-id="title">Ingresar</div>
+                    </div>
+                    <fieldset>
+                        <div>
+                            <label class="control-label" for="email"><span class="lift:Loc?locid=Email">E-mail</span></label>
+                            <input type="text" id="email" name="username" placeholder="Email" required><br/>
+                            <label class="control-label" for="password"><span class="lift:Loc?locid=Password">Password</span></label>
+                            <input type="password" id="password" name="password" placeholder="Password">
+                        </div>
+                        <div>
+                            <a href="/user_mgt/lost_password"><span class="lift:Loc?locid=recover.password">Recover Password</span></a>
+                        </div>
+                        <div style="text-align: center;margin-top: 10px">
+                            <div class="btn-group">
+                                <button type="submit" name="save" class="btn"><span class="lift:Loc?locid=sign.in">Sign in</span></button>
+                                <button type="reset" name="reset" class="btn"><span class="lift:Loc?locid=reset">Reset</span></button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
