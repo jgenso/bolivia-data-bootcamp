@@ -15,6 +15,9 @@ import code.model._
 import net.liftmodules.{FoBo, JQueryModule}
 import code.lib.model.DbHelper
 import net.liftweb.squerylrecord.RecordTypeMode._
+import code.lib.auth.OpenDataOIVendor
+import omniauth.Omniauth
+import omniauth.lib.{GithubProvider, TwitterProvider, FacebookProvider}
 
 
 /**
@@ -57,23 +60,16 @@ class Boot {
     // Uncomment the following line to create the database schema
     DbHelper.createSchema()
 
-
     // Build SiteMap
-    def sitemap = SiteMap(
-      Menu.i("Home") / "index" >> User.AddUserMenusAfter, // the simple way to declare a menu
+    val entries  = Omniauth.sitemap ::: List(
+      Menu.i("Home") / "index"
+    )
 
-      // more complex because this menu allows anything in the
-      // /static path to be visible
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+    //LiftRules.setSiteMap(SiteMap(entries:_*))
 
     // set the sitemap.  Note if you don't want access control for
     // each page, just comment this line out.
-    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap))
-
-    // set the sitemap.  Note if you don't want access control for
-    // each page, just comment this line out.
-    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap))
+    LiftRules.setSiteMapFunc(() => User.sitemapMutator(SiteMap(entries:_*)))
 
     //Init the jQuery module, see http://liftweb.net/jquery for more information.
     LiftRules.jsArtifacts = JQueryArtifacts
@@ -96,7 +92,18 @@ class Boot {
 
     // Use HTML5 for rendering
     LiftRules.htmlProperties.default.set((r: Req) =>
-      new Html5Properties(r.userAgent))    
+      new Html5Properties(r.userAgent))
+
+    //Omniauth stuff
+    //Supply a list of providers
+    Omniauth.init
+
+
+
+    //OpenID stuff
+    // ToDo doesnt work, needs fix for record instead ofmapper
+    //LiftRules.dispatch.append(OpenDataOIVendor.dispatchPF)
+    //LiftRules.snippets.append(OpenDataOIVendor.snippetPF)
 
   }
 }

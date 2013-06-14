@@ -1,6 +1,6 @@
 package code.model
 
-import net.liftweb.squerylrecord.KeyedRecord
+import net.liftweb.squerylrecord.{RecordTypeMode, KeyedRecord}
 import net.liftweb.record.field._
 import org.squeryl.annotations.Column
 import net.liftweb.record.{MetaRecord, Record}
@@ -30,6 +30,8 @@ import net.liftweb.common.Full
 import scala.Some
 import net.liftweb.sitemap.Loc.If
 import java.lang.String
+import net.liftmodules.openid.{MetaOpenIDProtoUser, OpenIDProtoUser}
+import RecordTypeMode._
 
 class User private() extends MegaProtoUser[User] with Record[User] with KeyedRecord[Long] {
 
